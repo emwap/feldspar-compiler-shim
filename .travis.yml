@@ -21,9 +21,10 @@ before_install:
   - if [ ! -d imperative-edsl/.git ]; then rm -rf imperative-edsl && git clone https://github.com/emilaxelsson/imperative-edsl; fi
   - if [ ! -d feldspar-language/.git ]; then rm -rf feldspar-language && git clone https://github.com/Feldspar/feldspar-language; fi
   - if [ ! -d feldspar-compiler/.git ]; then rm -rf feldspar-compiler && git clone https://github.com/Feldspar/feldspar-compiler; fi
-  - cd imperative-edsl   && git fetch -v && git checkout $TRAVIS_BRANCH || git checkout master
-  - cd feldspar-language && git fetch -v && git checkout $TRAVIS_BRANCH || git checkout master
-  - cd feldspar-compiler && git fetch -v && git checkout $TRAVIS_BRANCH || git checkout master
+  - cd $TRAVIS_BUILD_DIR/imperative-edsl   && git fetch -v && git checkout $TRAVIS_BRANCH || git checkout master
+  - cd $TRAVIS_BUILD_DIR/feldspar-language && git fetch -v && git checkout $TRAVIS_BRANCH || git checkout master
+  - cd $TRAVIS_BUILD_DIR/feldspar-compiler && git fetch -v && git checkout $TRAVIS_BRANCH || git checkout master
+  - cd $TRAVIS_BUILD_DIR
   - cabal sandbox add-source imperative-edsl
   - cabal sandbox add-source feldspar-language
   - cabal sandbox add-source feldspar-compiler
