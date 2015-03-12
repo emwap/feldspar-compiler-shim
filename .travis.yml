@@ -35,3 +35,6 @@ before_install:
 
 install:
   - cabal install --enable-tests --only-dependencies --reinstall --upgrade-dependencies --max-backjumps=-1 --reorder-goals
+
+script:
+  - cabal test
