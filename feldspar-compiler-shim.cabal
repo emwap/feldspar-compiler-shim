@@ -30,7 +30,7 @@ library
     FlexibleContexts
 
   build-depends:
-    base >=4.6 && <4.8,
+    base >=4 && <4.8,
     language-c-quote,
     mainland-pretty,
     imperative-edsl,
