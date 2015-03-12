@@ -1,3 +1,12 @@
+sudo: false
+
+cache:
+  directories:
+    - .cabal-sandbox
+    - imperative-edsl
+    - feldspar-language
+    - feldspar-compiler
+
 language: haskell
 
 ghc:
@@ -8,9 +17,12 @@ ghc:
 before_install:
   - cabal install alex happy
   - cabal sandbox init
-  - git clone https://github.com/emilaxelsson/imperative-edsl
+  - if [ ! -d imperative-edsl/.git ]; then rm -rf imperative-edsl && git clone https://github.com/emilaxelsson/imperative-edsl; fi
+  - if [ ! -d feldspar-language/.git ]; then rm -rf feldspar-language && git clone https://github.com/Feldspar/feldspar-language; fi
+  - if [ ! -d feldspar-compiler/.git ]; then rm -rf feldspar-compiler && git clone https://github.com/Feldspar/feldspar-compiler; fi
   - cabal sandbox add-source imperative-edsl
-  - git clone https://github.com/Feldspar/feldspar-language
   - cabal sandbox add-source feldspar-language
-  - git clone https://github.com/Feldspar/feldspar-compiler
   - cabal sandbox add-source feldspar-compiler
+
+install:
+  - cabal install --enable-tests --only-dependencies --reinstall --upgrade-dependencies
