@@ -29,7 +29,7 @@ before_install:
   - cabal sandbox add-source feldspar-language
   - cabal sandbox add-source feldspar-compiler
   - cabal sandbox hc-pkg dump
-  - cabal install --enable-tests --only-dependencies --reinstall --upgrade-dependencies --dry-run -v2
+  - cabal install --enable-tests --only-dependencies --reinstall --upgrade-dependencies --dry-run -v2 --max-backjumps=200
 
 install:
-  - cabal install --enable-tests --only-dependencies --reinstall --upgrade-dependencies
+  - cabal install --enable-tests --only-dependencies --reinstall --upgrade-dependencies --max-backjumps=200
