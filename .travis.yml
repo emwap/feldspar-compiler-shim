@@ -10,3 +10,7 @@ before_install:
   - cabal sandbox init
   - git clone https://github.com/emilaxelsson/imperative-edsl
   - cabal sandbox add-source imperative-edsl
+  - git clone https://github.com/Feldspar/feldspar-language
+  - cabal sandbox add-source feldspar-language
+  - git clone https://github.com/Feldspar/feldspar-compiler
+  - cabal sandbox add-source feldspar-compiler
