@@ -6,6 +6,7 @@ ghc:
   - 7.4
 
 before_install:
+  - cabal install alex happy
   - cabal sandbox init
   - git clone https://github.com/emilaxelsson/imperative-edsl
   - cabal sandbox add-source imperative-edsl
