@@ -15,6 +15,7 @@ ghc:
   - 7.4
 
 before_install:
+  - cabal install cabal-install-1.20.0.6
   - cabal install alex happy
   - cabal sandbox init
   - if [ ! -d imperative-edsl/.git ]; then rm -rf imperative-edsl && git clone https://github.com/emilaxelsson/imperative-edsl; fi
