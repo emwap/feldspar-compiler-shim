@@ -31,6 +31,7 @@ library
 
   build-depends:
     base >=4 && <4.8,
+    mtl,
     language-c-quote,
     mainland-pretty,
     imperative-edsl,

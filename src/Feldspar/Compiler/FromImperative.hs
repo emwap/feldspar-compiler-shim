@@ -19,6 +19,7 @@ module Feldspar.Compiler.FromImperative
   where
 
 import Control.Monad (when)
+import Control.Monad.State
 
 import Language.C.Quote.C
 import qualified Language.C.Syntax as C
@@ -27,7 +28,7 @@ import Feldspar.Core.Constructs (SyntacticFeld)
 import Feldspar.Core.Types (TypeRep,defaultSize)
 import Feldspar.Core.Middleend.FromTyped (untypeType)
 import Feldspar.Compiler (defaultOptions)
-import Feldspar.Compiler.Imperative.FromCore (fromCore)
+import Feldspar.Compiler.Imperative.FromCore (fromCoreM)
 import Feldspar.Compiler.Imperative.Frontend (isVarExpr,isNativeArray,isArray)
 import Feldspar.Compiler.Imperative.Representation
 import Feldspar.Compiler.Imperative.FromCore.Interpretation (compileTypeRep)
@@ -37,7 +38,12 @@ import Language.C.Monad
 
 -- | Translate a Feldspar expression
 translateExpr :: MonadC m => SyntacticFeld a => a -> m C.Exp
-translateExpr = translateExpr' . rename defaultOptions False . fromCore defaultOptions "test"
+translateExpr a = do
+  s <- get
+  let (ast,s') = flip runState (_unique s)
+               $ fromCoreM defaultOptions "test" a
+  put $ s { _unique = s' }
+  translateExpr' $ rename defaultOptions False ast
 
 translateTypeRep :: MonadC m => TypeRep a -> m C.Type
 translateTypeRep trep = compileType $ compileTypeRep defaultOptions $ untypeType trep (defaultSize trep)
