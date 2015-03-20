@@ -3,6 +3,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -- | This module implements a translator from Feldspar expressions
 -- @translateExpr@, that reinterprets the Feldspar imperative
@@ -14,15 +15,15 @@
 module Feldspar.Compiler.FromImperative
   ( translateExpr
   , translateTypeRep
-  , compileType
+  , translateType
   )
   where
 
-import Control.Monad (when)
 import Control.Monad.State
 
 import Language.C.Quote.C
 import qualified Language.C.Syntax as C
+import qualified Feldspar as F
 import Text.PrettyPrint.Mainland (ppr)
 import Feldspar.Core.Constructs (SyntacticFeld)
 import Feldspar.Core.Types (TypeRep,defaultSize)
@@ -336,3 +337,8 @@ compileType = go
                     S40 -> "40"
                     S64 -> "64"
       return [cty| typename $id:(base++size++"_t") |]
+
+-- | Extract the type of the expression as a C Type
+translateType :: forall m expr a. (MonadC m, F.Type a) => expr a -> m C.Type
+translateType _ = translateTypeRep (F.typeRep :: F.TypeRep a)
+{-# INLINE translateType #-}
