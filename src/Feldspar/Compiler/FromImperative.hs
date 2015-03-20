@@ -162,6 +162,7 @@ compileProgram Assign{..}
       l <- compileExpression e
       r <- compileExpression rhs
       addStm [cstm| $l = $r; |]
+compileProgram Assign{} = return ()
 compileProgram ProcedureCall{..} = do
   as <- mapM compileActualParameter procCallParams
   addStm [cstm| $id:(procCallName) ( $args:as ) ; |]
