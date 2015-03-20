@@ -47,6 +47,7 @@ translateExpr a = do
 
 translateTypeRep :: MonadC m => TypeRep a -> m C.Type
 translateTypeRep trep = compileType $ compileTypeRep defaultOptions $ untypeType trep (defaultSize trep)
+{-# INLINE translateTypeRep #-}
 
 -- | Reinterpet the Feldspar imperative representation as actions in the
 -- @C@ monad.
