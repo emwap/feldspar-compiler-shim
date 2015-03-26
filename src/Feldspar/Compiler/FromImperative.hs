@@ -1,5 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -24,6 +25,7 @@ import Control.Monad.State
 import Language.C.Quote.C
 import qualified Language.C.Syntax as C
 import qualified Feldspar as F
+import qualified Feldspar.Core.Constructs as F
 import Text.PrettyPrint.Mainland (ppr)
 import Feldspar.Core.Constructs (SyntacticFeld)
 import Feldspar.Core.Types (TypeRep,defaultSize)
@@ -36,6 +38,28 @@ import Feldspar.Compiler.Imperative.FromCore.Interpretation (compileTypeRep)
 import Feldspar.Compiler.Backend.C.MachineLowering (rename)
 import Feldspar.Compiler.Backend.C.CodeGeneration (isInfixFun)
 import Language.C.Monad
+import Language.Embedded.Interpretation
+
+
+type instance VarPred F.Data = F.Type
+
+-- | Evaluate `Data` expressions
+instance EvalExp F.Data
+  where
+    litExp  = F.value
+    evalExp = F.eval
+    {-# INLINE litExp #-}
+    {-# INLINE evalExp #-}
+
+-- | Compile `Data` expressions
+instance CompExp F.Data
+  where
+    varExp   = F.mkVariable
+    compExp  = translateExpr
+    compType = translateType
+    {-# INLINE varExp #-}
+    {-# INLINE compExp #-}
+    {-# INLINE compType #-}
 
 -- | Translate a Feldspar expression
 translateExpr :: MonadC m => SyntacticFeld a => a -> m C.Exp
