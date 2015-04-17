@@ -38,7 +38,7 @@ import Feldspar.Compiler.Imperative.FromCore.Interpretation (compileTypeRep)
 import Feldspar.Compiler.Backend.C.MachineLowering (rename)
 import Feldspar.Compiler.Backend.C.CodeGeneration (isInfixFun)
 import Language.C.Monad
-import Language.Embedded.Interpretation
+import Language.Embedded.Expression
 
 
 type instance VarPred F.Data = F.Type
