@@ -20,6 +20,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:
     Feldspar.Compiler.FromImperative
+    Feldspar.Compiler.ToMutable
 
   -- other-modules:
   other-extensions:
@@ -31,6 +32,7 @@ library
 
   build-depends:
     base >=4 && < 5,
+    containers,
     mtl,
     language-c-quote,
     mainland-pretty,
