@@ -36,13 +36,18 @@ type Store = Map String Dynamic
 -- | Monad for generating 'M' programs
 type GenM = StateT Store (SupplyT M)
 
--- | Run a 'GenM' in a local scope
+-- | Run a 'GenM' in a local state. It is assumed that no effects from 'Store' or 'SupplyT' leak out
+-- through the returned value.
 local :: GenM a -> GenM (M a)
 local m = do
     store <- get
     v     <- lift $ SupplyT get
-    lift $ SupplyT $ put (v+100) -- TODO Use a splittable supply
     return $ flip evalStateT v $ unSupplyT $ flip evalStateT store m
+  -- Note: It's OK not to update the store and supply because of the assumption that the local
+  --       action doesn't leak these effects. If the local action creates a reference, this
+  --       reference will go into the local store. But as long as the reference is not returned,
+  --       it can be deleted after the local action and even its identifier can be reused for other
+  --       references.
 
 -- | Instructions that can be converted to the 'M' monad
 class ToMutable instr
