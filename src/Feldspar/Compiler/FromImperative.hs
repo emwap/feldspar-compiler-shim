@@ -1,10 +1,12 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 -- | This module implements a translator from Feldspar expressions
 -- @translateExpr@, that reinterprets the Feldspar imperative
@@ -21,7 +23,9 @@ module Feldspar.Compiler.FromImperative
   where
 
 import Control.Monad.State
+import Data.Typeable (Typeable)
 
+import Data.TypePredicates
 import Language.C.Quote.C
 import qualified Language.C.Syntax as C
 import qualified Feldspar as F
@@ -366,3 +370,8 @@ compileType = go
 translateType :: forall m expr a. (MonadC m, F.Type a) => expr a -> m C.Type
 translateType _ = translateTypeRep (F.typeRep :: F.TypeRep a)
 {-# INLINE translateType #-}
+
+instance Typeable :< F.Type
+  where
+    sub Dict = Dict
+
