@@ -35,7 +35,7 @@ import Feldspar.Core.Constructs (SyntacticFeld)
 import Feldspar.Core.Types (TypeRep,defaultSize)
 import Feldspar.Core.Middleend.FromTyped (untypeType)
 import Feldspar.Compiler (defaultOptions)
-import Feldspar.Compiler.Imperative.FromCore (fromCoreM)
+import Feldspar.Compiler.Imperative.FromCore (fromCoreM, fromCoreExp)
 import Feldspar.Compiler.Imperative.Frontend (isVarExpr,isNativeArray,isArray)
 import Feldspar.Compiler.Imperative.Representation
 import Feldspar.Compiler.Imperative.FromCore.Interpretation (compileTypeRep)
@@ -59,7 +59,7 @@ instance EvalExp F.Data
 instance CompExp F.Data
   where
     varExp   = F.mkVariable
-    compExp  = translateExpr
+    compExp  = translateExprrr
     compType = translateType
     {-# INLINE varExp #-}
     {-# INLINE compExp #-}
@@ -73,6 +73,19 @@ translateExpr a = do
                $ fromCoreM defaultOptions "test" a
   put $ s { _unique = s' }
   translateExpr' $ rename defaultOptions False ast
+
+-- | Translate a Feldspar expression
+translateExprrr :: MonadC m => SyntacticFeld a => a -> m C.Exp
+translateExprrr a = do
+  s <- get
+  let ((es,ds,p,exp),s')
+        = flip runState (_unique s)
+        $ fromCoreExp defaultOptions a
+  put $ s { _unique = s' }
+  mapM_ compileDeclaration ds
+  mapM_ compileEntity es
+  compileProgram p
+  compileExpression exp
 
 translateTypeRep :: MonadC m => TypeRep a -> m C.Type
 translateTypeRep trep = compileType $ compileTypeRep defaultOptions $ untypeType trep (defaultSize trep)
