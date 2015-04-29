@@ -36,7 +36,7 @@ import Feldspar.Core.Types (TypeRep,defaultSize)
 import Feldspar.Core.Middleend.FromTyped (untypeType)
 import Feldspar.Compiler (defaultOptions)
 import Feldspar.Compiler.Imperative.FromCore (fromCoreExp)
-import Feldspar.Compiler.Imperative.Frontend (isNativeArray)
+import Feldspar.Compiler.Imperative.Frontend (isArray,isNativeArray)
 import Feldspar.Compiler.Imperative.Representation
 import Feldspar.Compiler.Imperative.FromCore.Interpretation (compileTypeRep)
 import Feldspar.Compiler.Backend.C.CodeGeneration (isInfixFun)
@@ -118,7 +118,9 @@ compileDeclaration :: MonadC m => Declaration () -> m ()
 compileDeclaration Declaration{..} = do
   ty <- compileType $ varType declVar
   case initVal of
-       Nothing  -> addLocal [cdecl| $ty:ty $id:(varName declVar); |]
+       Nothing  -> if isArray (varType declVar)
+                      then addLocal [cdecl| $ty:ty $id:(varName declVar) = NULL; |]
+                      else addLocal [cdecl| $ty:ty $id:(varName declVar); |]
        Just ini -> do
          e <- compileExpression ini
          addLocal [cdecl| $ty:ty $id:(varName declVar) = $e; |]
