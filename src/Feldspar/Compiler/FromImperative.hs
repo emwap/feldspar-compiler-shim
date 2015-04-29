@@ -35,11 +35,10 @@ import Feldspar.Core.Constructs (SyntacticFeld)
 import Feldspar.Core.Types (TypeRep,defaultSize)
 import Feldspar.Core.Middleend.FromTyped (untypeType)
 import Feldspar.Compiler (defaultOptions)
-import Feldspar.Compiler.Imperative.FromCore (fromCoreM, fromCoreExp)
-import Feldspar.Compiler.Imperative.Frontend (isVarExpr,isNativeArray,isArray)
+import Feldspar.Compiler.Imperative.FromCore (fromCoreExp)
+import Feldspar.Compiler.Imperative.Frontend (isNativeArray)
 import Feldspar.Compiler.Imperative.Representation
 import Feldspar.Compiler.Imperative.FromCore.Interpretation (compileTypeRep)
-import Feldspar.Compiler.Backend.C.MachineLowering (rename)
 import Feldspar.Compiler.Backend.C.CodeGeneration (isInfixFun)
 import Language.C.Monad
 import Language.Embedded.Expression
@@ -59,7 +58,7 @@ instance EvalExp F.Data
 instance CompExp F.Data
   where
     varExp   = F.mkVariable
-    compExp  = translateExprrr
+    compExp  = translateExpr
     compType = translateType
     {-# INLINE varExp #-}
     {-# INLINE compExp #-}
@@ -68,15 +67,6 @@ instance CompExp F.Data
 -- | Translate a Feldspar expression
 translateExpr :: MonadC m => SyntacticFeld a => a -> m C.Exp
 translateExpr a = do
-  s <- get
-  let (ast,s') = flip runState (_unique s)
-               $ fromCoreM defaultOptions "test" a
-  put $ s { _unique = s' }
-  translateExpr' $ rename defaultOptions False ast
-
--- | Translate a Feldspar expression
-translateExprrr :: MonadC m => SyntacticFeld a => a -> m C.Exp
-translateExprrr a = do
   s <- get
   let ((es,ds,p,exp,ep),s')
         = flip runState (_unique s)
@@ -91,69 +81,6 @@ translateExprrr a = do
 translateTypeRep :: MonadC m => TypeRep a -> m C.Type
 translateTypeRep trep = compileType $ compileTypeRep defaultOptions $ untypeType trep (defaultSize trep)
 {-# INLINE translateTypeRep #-}
-
--- | Reinterpet the Feldspar imperative representation as actions in the
--- @C@ monad.
---
-translateExpr' :: MonadC m => Module () -> m C.Exp
-translateExpr' Module{..}
-  | (x:xs) <- reverse entities
-  , Proc{..} <- x
-  , "test" == procName
-  , Just (Block ds body) <- procBody
-  , Left [out] <- outParams
-  , Sequence [Sequence{..}] <- body
-  , (p:ps) <- reverse sequenceProgs
-  = do
-    mapM_ compileDeclaration ds
-    mapM_ compileEntity $ reverse xs
-    mapM_ compileProgram $ reverse ps
-    translatePrg out p
-translateExpr' a = error $ unlines ["Can't translate expression from module:", show a]
-
-deref :: Type -> Type
-deref (MachineVector 1 (Pointer t)) = deref t
-deref t           = t
-
-translatePrg :: MonadC m => Variable () -> Program () -> m C.Exp
-translatePrg _ ProcedureCall{..}
-  | "copy" == procCallName
-  , [_,rhs] <- procCallParams
-  = compileActualParameter rhs
-translatePrg v (Assign (Just (Deref e)) rhs)
-  | isVarExpr e
-  , varName v == varName (varExpr e)
-  = compileExpression rhs
-translatePrg Variable{..} Sequence{..}
-  | [Assign _ _,ProcedureCall{..}] <- sequenceProgs
-  , "copyArray" <- procCallName
-  , [_,rhs] <- procCallParams
-  = compileActualParameter rhs
-  | [Assign _ rhs] <- sequenceProgs
-  = compileExpression rhs
-translatePrg Variable{..} Switch{..}
-  | FunctionCall (Function "==" _) [_, _] <- scrutinee
-  , [ (Pat (ConstExpr (BoolConst True )), Block [] (Sequence [Sequence [Assign (Just vt) et]]))
-    , (Pat (ConstExpr (BoolConst False)), Block [] (Sequence [Sequence [Assign (Just vf) ef]]))
-    ] <- alts
-  , vt == vf
-  = do
-    s <- compileExpression scrutinee
-    t <- compileExpression et
-    f <- compileExpression ef
-    return [cexp| $s ? $t : $f |]
-translatePrg Variable{..} a = do
-  var <- gensym "v"
-  ty  <- compileType $ deref varType
-  addLocal [cdecl| $ty:ty $id:var = 0; |]
-  inBlock $ do
-    addLocal [cdecl| $ty:ty * $id:varName = & $id:var; |]
-    compileProgram a
-    when (isArray $ deref varType) $ addStm [cstm| $id:var = *$id:varName; |]
-  return [cexp| $id:var |]
-
-compileModule :: MonadC m => Module () -> m ()
-compileModule Module{..} = mapM_ compileEntity entities
 
 compileEntity :: MonadC m => Entity () -> m ()
 compileEntity StructDef{..} = do
