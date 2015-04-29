@@ -341,8 +341,10 @@ compileConstant ArrayConst{..} = do
 compileType :: MonadC m => Type -> m C.Type
 compileType = go
   where
-    go VoidType                 = return [cty| void |]
-    go (MachineVector 1 BoolType)                 = return [cty| typename bool |]
+    go VoidType = return [cty| void |]
+    go (MachineVector 1 BoolType) = do
+      addSystemInclude "stdbool.h"
+      return [cty| typename bool |]
     go (MachineVector 1 BitType)                  = return [cty| typename bit  |]
     go (MachineVector 1 FloatType)                = return [cty| float |]
     go (MachineVector 1 DoubleType)               = return [cty| double |]
