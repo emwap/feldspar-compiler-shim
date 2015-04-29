@@ -78,7 +78,7 @@ translateExpr a = do
 translateExprrr :: MonadC m => SyntacticFeld a => a -> m C.Exp
 translateExprrr a = do
   s <- get
-  let ((es,ds,p,exp),s')
+  let ((es,ds,p,exp,ep),s')
         = flip runState (_unique s)
         $ fromCoreExp defaultOptions a
   put $ s { _unique = s' }
@@ -86,6 +86,7 @@ translateExprrr a = do
   mapM_ compileEntity es
   compileProgram p
   compileExpression exp
+  -- TODO ep is currently ignored
 
 translateTypeRep :: MonadC m => TypeRep a -> m C.Type
 translateTypeRep trep = compileType $ compileTypeRep defaultOptions $ untypeType trep (defaultSize trep)
