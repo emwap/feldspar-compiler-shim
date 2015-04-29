@@ -228,7 +228,11 @@ compileProgram Switch{..} = do
        [ (Pat (ConstExpr (BoolConst True)), tb) , (Pat (ConstExpr (BoolConst False)), eb) ] -> do
          tb' <- inNewBlock_ $ compileBlock tb
          eb' <- inNewBlock_ $ compileBlock eb
-         addStm [cstm| if ($se) { $items:tb' } else { $items:eb' } |]
+         case (tb',eb') of
+           ([],[]) -> return ()
+           (_ ,[]) -> addStm [cstm| if (   $se) {$items:tb'} |]
+           ([],_ ) -> addStm [cstm| if ( ! $se) {$items:eb'} |]
+           (_ ,_ ) -> addStm [cstm| if (   $se) {$items:tb'} else {$items:eb'} |]
        _ -> do
          is <- inNewBlock_ $ mapM_ compileAlt alts
          addStm [cstm| switch ($se) { $items:is } |]
