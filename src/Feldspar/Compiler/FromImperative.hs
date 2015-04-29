@@ -329,7 +329,9 @@ compileConstant :: MonadC m => Constant () -> m C.Exp
 compileConstant IntConst{..} = return [cexp| $const:intValue |]
 compileConstant DoubleConst{..} = return [cexp| $const:doubleValue |]
 compileConstant FloatConst{..} = return [cexp| $const:floatValue |]
-compileConstant BoolConst{..} = return [cexp| $const:(if boolValue then 0 else 1 :: Int) |]
+compileConstant BoolConst{..}
+    | boolValue = addSystemInclude "stdbool.h" >> return [cexp| true |]
+    | otherwise = addSystemInclude "stdbool.h" >> return [cexp| false |]
 compileConstant ComplexConst{..} = do
   c1 <- compileConstant realPartComplexValue
   c2 <- compileConstant imagPartComplexValue
