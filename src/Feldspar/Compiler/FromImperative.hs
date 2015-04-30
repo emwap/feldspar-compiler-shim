@@ -168,6 +168,9 @@ compileProgram Switch{..} = do
 compileProgram SeqLoop{..} = do
   cond  <- compileExpression sLoopCond
   items <- inNewBlock_ $ compileBlock sLoopBlock >> compileBlock sLoopCondCalc
+  compileBlock sLoopCondCalc
+    -- TODO Code duplication. If `sLoopCondCalc` is large, it's better to use
+    --      `while(1)` with a conditional break inside.
   addStm [cstm| while ($cond) { $items:items } |]
 compileProgram ParLoop{..} = do
   let ix = varName pLoopCounter
