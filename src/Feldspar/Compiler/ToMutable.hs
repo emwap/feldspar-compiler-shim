@@ -24,6 +24,9 @@ import Feldspar (Data, M)
 import qualified Feldspar as Feld
 
 import Control.Monads
+import Control.Monad.Operational.Compositional
+import Language.Embedded.Expression
+import Language.Embedded.Imperative.CMD
 import Language.Embedded.Imperative
 
 import Feldspar.Compiler.FromImperative ()
