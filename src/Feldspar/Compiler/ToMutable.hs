@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 -- | Conversion from 'Program' to 'M'
@@ -102,10 +103,10 @@ fNewRef (InitRef a) = lift $ lift $ Feld.newRef a
 
 instance ToMutable (ArrCMD Data)
   where
-    toMutCMD (NewArr n a) arr@(ArrComp v) = do
+    toMutCMD (NewArr n) arr@(ArrComp v :: Arr n a) = do
         let Just n' = cast n  -- TODO
-        fa <- lift $ lift $ Feld.newArr n' a
-        modify $ Map.insert v $ toDyn fa
+        fa <- lift $ lift $ Feld.newArr_ n'
+        modify $ Map.insert v $ toDyn (fa :: Data (Feld.MArr a))
         return arr
 --     toMutCMD (GetArr i (ArrComp v)) _ = do
 --         let Just i' = cast i  -- TODO
