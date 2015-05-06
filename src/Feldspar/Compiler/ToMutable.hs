@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
@@ -67,7 +68,12 @@ instance (ToMutable i1, ToMutable i2) => ToMutable (i1 :+: i2)
 toMutable :: (ToMutable instr, DryInterp instr, MapInstr instr) => Program instr a -> M a
 toMutable = runSupplyT . flip evalStateT Map.empty . observe toMutCMD
 
-deriving instance Typeable Feld.Ref -- TODO Should go into Feldspar
+#if __GLASGOW_HASKELL__ < 708
+deriving instance Typeable1 Feld.Ref
+#else
+deriving instance Typeable Feld.Ref
+#endif
+ -- TODO Should go into Feldspar
 
 showVar :: VarId -> String
 showVar = ('v':) . show
