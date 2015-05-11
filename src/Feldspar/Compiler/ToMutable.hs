@@ -22,8 +22,10 @@ import Data.Dynamic
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-import Feldspar (Data, M)
+import Feldspar (Data)
+import Feldspar.Mutable (M)
 import qualified Feldspar as Feld
+import qualified Feldspar.Mutable as Feld
 
 import Control.Monads
 import Control.Monad.Operational.Compositional
