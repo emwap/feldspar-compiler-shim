@@ -70,7 +70,7 @@ translateExpr a = do
   s <- get
   let ((es,ds,p,exp,ep),s')
         = flip runState (_unique s)
-        $ fromCoreExp defaultOptions a
+        $ fromCoreExp defaultOptions (_aliases s) a
   put $ s { _unique = s' }
   mapM_ compileDeclaration ds
   mapM_ compileEntity es
