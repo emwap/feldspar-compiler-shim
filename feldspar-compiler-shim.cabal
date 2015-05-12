@@ -17,6 +17,10 @@ build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
 
+source-repository head
+  type:     git
+  location: git://github.com/emwap/feldspar-compiler-shim.git
+
 library
   exposed-modules:
     Feldspar.Compiler.FromImperative
