@@ -19,6 +19,7 @@ module Feldspar.Compiler.FromImperative
   ( translateExpr
   , translateTypeRep
   , translateType
+  , compileType
   )
   where
 

@@ -78,13 +78,14 @@ instance Arbitrary FC.Type where
                       ]
 
 prop_types :: FC.Type -> Property
-prop_types t = ioProperty $ do
-    let ts = "bool"
-           : [ s++"int"++show i++"_t" | s <- ["","u"], i <- [8,16,32,64] ]
-    let t1 = FC.cgen (PEnv defaultOptions 0) t
-    (t2,_) <- runCGen (compileType t) (defaultCEnv Flags)
+prop_types t = property $
     case parse [] ts parseType (fromString $ TPP.render t1) (startPos "") of
          Left e -> error (unlines [TPP.render t1, show e])
-         Right t1' -> return $ show (MPP.ppr t1') === show (MPP.ppr t2)
+         Right t1' -> show (MPP.ppr t1') === show (MPP.ppr t2)
+  where
+    ts = "bool"
+       : [ s++"int"++show i++"_t" | s <- ["","u"], i <- [8,16,32,64] ]
+    t1 = FC.cgen (PEnv defaultOptions 0) t
+    t2 = fst $ runCGen (compileType t) (defaultCEnv Flags)
 
 main = $(defaultMainGenerator)
