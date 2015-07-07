@@ -2,7 +2,7 @@
 -- further documentation, see http://haskell.org/cabal/users-guide/
 
 name:                feldspar-compiler-shim
-version:             0.3
+version:             0.3.1
 synopsis:            Temporary package to bridge between the imperative representation and MonadC
 description:         The main purpose for this package it to make it possible to convert a program in
                      feldspar-compiler's imperative representation to an action in the MonadC monad,
@@ -39,7 +39,7 @@ library
     containers,
     mtl,
     language-c-quote,
-    mainland-pretty,
+    mainland-pretty < 0.4,
     imperative-edsl,
     feldspar-language,
     feldspar-compiler
