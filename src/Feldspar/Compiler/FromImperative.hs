@@ -23,6 +23,8 @@ module Feldspar.Compiler.FromImperative
   )
   where
 
+import Debug.Trace
+
 import Control.Monad.State
 import Data.Typeable (Typeable)
 
@@ -31,7 +33,7 @@ import Language.C.Quote.C
 import qualified Language.C.Syntax as C
 import qualified Feldspar as F
 import qualified Feldspar.Core.Constructs as F
-import Text.PrettyPrint.Mainland (ppr)
+import Text.PrettyPrint.Mainland
 import Feldspar.Core.Constructs (SyntacticFeld)
 import Feldspar.Core.Types (TypeRep,defaultSize)
 import Feldspar.Core.Middleend.FromTyped (untypeType)
@@ -80,7 +82,9 @@ translateExpr a = do
   -- TODO ep is currently ignored
 
 translateTypeRep :: MonadC m => TypeRep a -> m C.Type
-translateTypeRep trep = compileType $ compileTypeRep defaultOptions $ untypeType trep (defaultSize trep)
+translateTypeRep trep = compileType
+                      $ compileTypeRep defaultOptions
+                      $ untypeType trep (defaultSize trep)
 {-# INLINE translateTypeRep #-}
 
 compileEntity :: MonadC m => Entity () -> m ()
@@ -191,11 +195,14 @@ compileAlt (Pat p,b) = do
   ss <- inNewBlock_ $ compileBlock b
   addStm [cstm| case $e : { $items:ss break; } |]
 
+showType :: C.Type -> String
+showType = flip displayS "" . renderCompact . ppr
+
 compileActualParameter :: MonadC m => ActualParameter () -> m C.Exp
 compileActualParameter ValueParameter{..} = compileExpression valueParam
 compileActualParameter TypeParameter{..} = do
   ty <- compileType typeParam
-  return [cexp| $id:(show $ ppr ty) |]
+  return [cexp| $id:(showType ty) |]
 compileActualParameter FunParameter{..} = return [cexp| $id:funParamName |]
 
 compileExpression :: MonadC m => Expression () -> m C.Exp
@@ -206,7 +213,7 @@ compileExpression e@ArrayElem{..} = do
   t <- compileType $ typeof e
   return $ if isNativeArray $ typeof array
               then [cexp| $a[$i] |]
-              else [cexp| at($id:(show $ ppr t),$a,$i) |]
+              else [cexp| at($id:(showType t),$a,$i) |]
 compileExpression StructField{..} = do
   s <- compileExpression struct
   return [cexp| $s.$id:(fieldName) |]
@@ -285,16 +292,10 @@ compileType = go
     go (MachineVector 1 DoubleType)               = return [cty| double |]
     go (MachineVector 1 (ComplexType (MachineVector 1 FloatType)))  = do
       addSystemInclude "complex.h"
-      addTypedef [cedecl| $esc:("#define floatcmplx float complex") |]
-      return [cty| typename floatcmplx |]
+      return [cty| _Complex float |]
     go (MachineVector 1 (ComplexType (MachineVector 1 DoubleType)))  = do
       addSystemInclude "complex.h"
-      addTypedef [cedecl| $esc:("#define doublecmplx double complex") |]
-      return [cty| typename doublecmplx |]
-    go (MachineVector 1 (ComplexType t)) = do
-      addSystemInclude "complex.h"
-      ty <- go t
-      return [cty| $ty:ty complex |]
+      return [cty| _Complex double |]
     go (ArrayType _ _)          = do
       addSystemInclude "feldspar_array.h"
       return [cty| struct array * |]
@@ -329,4 +330,3 @@ translateType _ = translateTypeRep (F.typeRep :: F.TypeRep a)
 instance Typeable :< F.Type
   where
     sub Dict = Dict
-
