@@ -221,9 +221,7 @@ compileExpression ConstExpr{..} = compileConstant constExpr
 compileExpression FunctionCall{..} = do
   as <- mapM compileExpression funCallParams
   case () of
-       _ | funName function == "!"
-         -> return [cexp| at($args:as) |]
-         | isInfixFun (funName function)
+       _ | isInfixFun (funName function)
          , [a,b] <- as
          -> mkBinOp a b (funName function)
          | otherwise
