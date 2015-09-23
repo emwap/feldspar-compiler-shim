@@ -20,6 +20,7 @@ module Feldspar.Compiler.FromImperative
   , translateTypeRep
   , translateType
   , compileType
+  , feldsparCIncludes
   )
   where
 
@@ -37,7 +38,7 @@ import Text.PrettyPrint.Mainland
 import Feldspar.Core.Constructs (SyntacticFeld)
 import Feldspar.Core.Types (TypeRep,defaultSize)
 import Feldspar.Core.Middleend.FromTyped (untypeType)
-import Feldspar.Compiler (defaultOptions)
+import Feldspar.Compiler (feldsparCIncludes, defaultOptions)
 import Feldspar.Compiler.Imperative.FromCore (fromCoreExp)
 import Feldspar.Compiler.Imperative.Frontend (isArray,isNativeArray)
 import Feldspar.Compiler.Imperative.Representation
