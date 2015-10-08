@@ -79,7 +79,7 @@ instance Arbitrary FC.Type where
 
 prop_types :: FC.Type -> Property
 prop_types t = property $
-    case parse [] ts parseType (fromString $ TPP.render t1) (startPos "") of
+    case parse [] ts parseType (fromString $ TPP.render t1) (Just $ startPos "") of
          Left e -> error (unlines [TPP.render t1, show e])
          Right t1' -> pretty 80 (MPP.ppr t1') === pretty 80 (MPP.ppr t2)
   where
