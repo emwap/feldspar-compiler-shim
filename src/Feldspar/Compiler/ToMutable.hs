@@ -68,7 +68,7 @@ instance (ToMutable i1, ToMutable i2) => ToMutable (i1 :+: i2)
     toMutCMD (Inr i) = toMutCMD i
 
 -- | Conversion from 'Program' to 'M'
-toMutable :: (ToMutable instr, DryInterp instr, MapInstr instr) => Program instr a -> M a
+toMutable :: (ToMutable instr, DryInterp instr, HFunctor instr) => Program instr a -> M a
 toMutable = runSupplyT . flip evalStateT Map.empty . observe toMutCMD
 
 #if __GLASGOW_HASKELL__ < 708
