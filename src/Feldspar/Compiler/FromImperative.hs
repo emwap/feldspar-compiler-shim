@@ -24,8 +24,6 @@ module Feldspar.Compiler.FromImperative
   )
   where
 
-import Debug.Trace
-
 import Control.Monad.State
 import Data.Typeable (Typeable)
 
