@@ -40,6 +40,7 @@ library
     mtl,
     language-c-quote >= 0.11 && < 0.12,
     mainland-pretty  >= 0.4  && < 0.5,
+    operational-alacarte,
     imperative-edsl,
     feldspar-language,
     feldspar-compiler

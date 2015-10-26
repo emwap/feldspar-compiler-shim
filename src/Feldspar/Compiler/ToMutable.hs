@@ -27,9 +27,11 @@ import Feldspar.Mutable (M)
 import qualified Feldspar as Feld
 import qualified Feldspar.Mutable as Feld
 
+import Control.Monad.Operational.Higher
+
 import Control.Monads
-import Control.Monad.Operational.Compositional
 import Language.Embedded.Expression
+import Language.Embedded.Traversal
 import Language.Embedded.Imperative.CMD
 import Language.Embedded.Imperative
 
