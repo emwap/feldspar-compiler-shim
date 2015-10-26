@@ -70,3 +70,16 @@ test-suite translation
     feldspar-language,
     feldspar-compiler,
     feldspar-compiler-shim
+
+test-suite ToMutable
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: ToMutable.hs
+  default-language: Haskell2010
+  default-extensions: TypeOperators
+  build-depends:
+    base,
+    operational-alacarte,
+    imperative-edsl,
+    feldspar-language,
+    feldspar-compiler-shim

@@ -33,7 +33,6 @@ import Control.Monads
 import Language.Embedded.Expression
 import Language.Embedded.Traversal
 import Language.Embedded.Imperative.CMD
-import Language.Embedded.Imperative
 
 import Feldspar.Compiler.FromImperative ()
 
@@ -132,26 +131,4 @@ instance ToMutable (ControlCMD Data)
         cont <- local contm
         body <- local bodym
         lift $ lift $ Feld.whileM cont body
-
-
-
--- Testing
-
-prog :: Program (RefCMD Data :+: ControlCMD Data) (Data Feld.Int32)
-prog = do
-    ir <- initRef (0 :: Data Feld.Int32)
-    ar <- initRef (1 :: Data Feld.Int32)
-    xr <- initRef (6 :: Data Feld.Int32)
-    setRef xr 67
-    x1 <- getRef xr
-    while
-        (do i <- getRef ir; setRef ir (i+1); return (i Feld.< 10))
-        (do a <- getRef ar; setRef ar (a*2))
-    setRef xr 102
-    x2 <- getRef xr
-    a  <- getRef ar
-    return (x1+x2+a)
-
-test1 = Feld.drawAST $ toMutable prog
-test2 = Feld.eval $ toMutable prog
 
