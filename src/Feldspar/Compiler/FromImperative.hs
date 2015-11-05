@@ -205,7 +205,7 @@ compileActualParameter TypeParameter{..} = do
 compileActualParameter FunParameter{..} = return [cexp| $id:funParamName |]
 
 compileExpression :: MonadC m => Expression () -> m C.Exp
-compileExpression VarExpr{..} = return [cexp| $id:(varName $ varExpr) |]
+compileExpression VarExpr{..} = return [cexp| $id:(varName varExpr) |]
 compileExpression e@ArrayElem{..} = do
   a <- compileExpression array
   i <- compileExpression arrayIndex
@@ -317,7 +317,7 @@ compileType = go
                     S32 -> "32"
                     S40 -> "40"
                     S64 -> "64"
-      return [cty| typename $id:(base++size++"_t") |]
+      return [cty| typename $id:(concat [base,size,"_t"]) |]
 
 -- | Extract the type of the expression as a C Type
 translateType :: forall m expr a. (MonadC m, F.Type a) => expr a -> m C.Type
