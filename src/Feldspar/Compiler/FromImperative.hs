@@ -132,21 +132,18 @@ compileDeclaration Declaration{..} = do
 compileProgram :: MonadC m => Program () -> m ()
 compileProgram Empty = return ()
 compileProgram Comment{..} = addStms [cstms| ; /* comment */ |]
-compileProgram Assign{..}
-  | Just e <- lhs
-  = do
-      l <- compileExpression e
-      r <- compileExpression rhs
-      addStm [cstm| $l = $r; |]
-compileProgram Assign{} = return ()
+compileProgram Assign{..} = do
+  l <- compileExpression lhs
+  r <- compileExpression rhs
+  addStm [cstm| $l = $r; |]
 compileProgram ProcedureCall{..} = do
   as <- mapM compileActualParameter procCallParams
   addStm [cstm| $id:(procCallName) ( $args:as ) ; |]
 compileProgram Sequence{..} = mapM_ compileProgram sequenceProgs
 compileProgram Switch{..}
   | FunctionCall (Function "==" _) [_, _] <- scrutinee
-  , [ (Pat (ConstExpr (BoolConst True )), Block [] (Sequence [Sequence [Assign (Just vt) et]]))
-    , (Pat (ConstExpr (BoolConst False)), Block [] (Sequence [Sequence [Assign (Just vf) ef]]))
+  , [ (Pat (ConstExpr (BoolConst True )), Block [] (Sequence [Sequence [Assign vt et]]))
+    , (Pat (ConstExpr (BoolConst False)), Block [] (Sequence [Sequence [Assign vf ef]]))
     ] <- alts
   , vt == vf
   = do
