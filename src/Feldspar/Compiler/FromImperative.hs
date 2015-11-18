@@ -25,6 +25,7 @@ module Feldspar.Compiler.FromImperative
   where
 
 import Control.Monad.State
+import qualified Data.Map as Map
 import Data.Typeable (Typeable)
 
 import Data.TypePredicates
@@ -70,10 +71,11 @@ instance CompExp F.Data
 translateExpr :: MonadC m => SyntacticFeld a => a -> m C.Exp
 translateExpr a = do
   s <- get
-  let ((es,ds,p,exp,ep),s')
-        = flip runState (_unique s)
-        $ fromCoreExp defaultOptions (_aliases s) a
-  put $ s { _unique = s' }
+  let als = Map.mapKeys fromInteger $ _aliases s
+      ((es,ds,p,exp,ep),s')
+        = flip runState (fromInteger $ _unique s)
+        $ fromCoreExp defaultOptions als a
+  put $ s { _unique = toInteger s' }
   mapM_ compileDeclaration ds
   mapM_ compileEntity es
   compileProgram p
