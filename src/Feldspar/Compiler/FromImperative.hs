@@ -39,9 +39,9 @@ import Feldspar.Core.Types (TypeRep,defaultSize)
 import Feldspar.Core.Middleend.FromTyped (untypeType)
 import Feldspar.Compiler (feldsparCIncludes, defaultOptions)
 import Feldspar.Compiler.Imperative.FromCore (fromCoreExp)
+import qualified Feldspar.Compiler.Imperative.FromCore as FromCore
 import Feldspar.Compiler.Imperative.Frontend (isArray,isNativeArray)
 import Feldspar.Compiler.Imperative.Representation
-import Feldspar.Compiler.Imperative.FromCore.Interpretation (compileTypeRep)
 import Feldspar.Compiler.Backend.C.CodeGeneration (isInfixFun)
 import Language.C.Monad
 import Language.Embedded.Expression
@@ -84,7 +84,7 @@ translateExpr a = do
 
 translateTypeRep :: MonadC m => TypeRep a -> m C.Type
 translateTypeRep trep = compileType
-                      $ compileTypeRep defaultOptions
+                      $ FromCore.compileType defaultOptions
                       $ untypeType trep (defaultSize trep)
 {-# INLINE translateTypeRep #-}
 
