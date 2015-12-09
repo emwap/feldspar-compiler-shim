@@ -26,9 +26,7 @@ module Feldspar.Compiler.FromImperative
 
 import Control.Monad.State
 import qualified Data.Map as Map
-import Data.Typeable (Typeable)
 
-import Data.TypePredicates
 import Language.C.Quote.C
 import qualified Language.C.Syntax as C
 import qualified Feldspar as F
@@ -322,7 +320,3 @@ compileType = go
 translateType :: forall m expr a. (MonadC m, F.Type a) => expr a -> m C.Type
 translateType _ = translateTypeRep (F.typeRep :: F.TypeRep a)
 {-# INLINE translateType #-}
-
-instance Typeable :< F.Type
-  where
-    sub Dict = Dict
