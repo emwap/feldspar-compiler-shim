@@ -43,6 +43,7 @@ import Feldspar.Compiler.Imperative.Representation
 import Feldspar.Compiler.Backend.C.CodeGeneration (isInfixFun)
 import Language.C.Monad
 import Language.Embedded.Expression
+import Language.Embedded.Imperative.CMD (CompArrIx)
 
 
 type instance VarPred F.Data = F.Type
@@ -64,6 +65,11 @@ instance CompExp F.Data
     {-# INLINE varExp #-}
     {-# INLINE compExp #-}
     {-# INLINE compType #-}
+
+instance CompArrIx F.Data
+  -- It would probably be possible to override the default method with a better
+  -- one if there was a way to inject variables of arbitrary (`String`) names in
+  -- Feldspar.
 
 -- | Translate a Feldspar expression
 translateExpr :: MonadC m => SyntacticFeld a => a -> m C.Exp
